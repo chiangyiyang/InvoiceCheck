@@ -1,19 +1,17 @@
 package com.iot2016b.yiyang;
 
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
+    public static void main(String[] args) {
         // write your code here
 
         InvoiceCheck ic = new InvoiceCheck("http://invoice.etax.nat.gov.tw/invoice.xml");
@@ -28,9 +26,9 @@ public class Main {
         String inNum;
         do {
             System.out.println("請輸入欲查詢的發票號碼(最少末三碼):");
-            inNum ="********" + scn.next();
+            inNum = "********" + scn.next();
             inNum = inNum.substring(inNum.length() - 8);
-            if(inNum.toLowerCase().equals("*****end")){
+            if (inNum.toLowerCase().equals("*****end")) {
                 System.out.println("結束查詢");
                 break;
             }
@@ -48,17 +46,22 @@ public class Main {
             this.url = url;
         }
 
-        public boolean loadData() throws ParserConfigurationException, IOException, SAXException {
+        public boolean loadData() {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(new URL(url).openStream());
+            DocumentBuilder db = null;
+            Document doc = null;
+            try {
+                db = dbf.newDocumentBuilder();
+                doc = db.parse(new URL(url).openStream());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             NodeList titles = doc.getElementsByTagName("title");
             NodeList descriptions = doc.getElementsByTagName("description");
 
             invData = new InvoiceData[titles.getLength() - 1];
             for (int i = 1; i < titles.getLength(); i++) {
-//                System.out.println("[" + i + "]" + descriptions.item(i).getTextContent());
                 String[] items = descriptions.item(i).getTextContent().split("</p><p>");
                 invData[i - 1] = new InvoiceData(
                         titles.item(i).getTextContent(),
@@ -120,7 +123,6 @@ public class Main {
                     }
                 }
 
-
                 //增開六獎
                 {
                     String[] nums = invData[i].extPrice200.split("、");
@@ -133,8 +135,7 @@ public class Main {
                 }
             }
 
-
-            return result;
+            return result.equals("") ? "沒中獎" : result;
         }
 
         private class InvoiceData {
@@ -145,20 +146,17 @@ public class Main {
             private final String extPrice200;
 
             public InvoiceData(String periodInfo, String price10M, String price2M, String price200K, String extPrice200) {
-//                System.out.println(periodInfo + " " + price10M + " " + price2M + " " + price200K + " " + extPrice200);
                 this.periodInfo = periodInfo;
                 this.price10M = price10M;
                 this.price2M = price2M;
                 this.price200K = price200K;
                 this.extPrice200 = extPrice200;
-
             }
 
             @Override
             public String toString() {
                 return "期別: " + periodInfo + "\n特別獎：" + price10M + "\n特獎：" + price2M + "\n頭獎：" + price200K + "\n增開六獎：" + extPrice200;
             }
-
 
         }
     }
