@@ -138,7 +138,7 @@ public class Main {
             return result.equals("") ? "沒中獎" : result;
         }
 
-
+//jhkjh
         private class InvoiceData {
             private final String periodInfo;
             private final String price10M;
