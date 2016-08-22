@@ -135,7 +135,6 @@ public class Main {
                 }
             }
 
-
             return result.equals("") ? "沒中獎" : result;
         }
 
